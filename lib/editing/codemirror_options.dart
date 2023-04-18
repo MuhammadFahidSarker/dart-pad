@@ -19,22 +19,16 @@ const codeMirrorOptions = {
   'indentUnit': 2,
   'cursorHeight': 0.85,
   'viewportMargin': 100,
-  'extraKeys': {
-    'Cmd-/': 'toggleComment',
-    'Ctrl-/': 'toggleComment',
-    'Shift-Tab': 'indentLess',
-    'Tab': 'indentIfMultiLineSelectionElseInsertSoftTab',
-    'Cmd-F': 'weHandleElsewhere',
-    'Cmd-H': 'weHandleElsewhere',
-    'Ctrl-F': 'weHandleElsewhere',
-    'Ctrl-H': 'weHandleElsewhere',
-    'Cmd-G': 'weHandleElsewhere',
-    'Shift-Ctrl-G': 'weHandleElsewhere',
-    'Ctrl-G': 'weHandleElsewhere',
-    'Shift-Cmd-G': 'weHandleElsewhere',
-    'F4': 'weHandleElsewhere',
-    'Shift-F4': 'weHandleElsewhere',
+  'extraKeys': extraKeysWithEscapeTab,
+  'foldGutter': true,
+  'foldOptions': {
+    'minFoldSize': 1,
+    'widget': '\u00b7\u00b7\u00b7', // like '...', but middle dots
   },
+  'matchTags': {
+    'bothTags': true,
+  },
+  'gutters': ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
   'highlightSelectionMatches': {
     'style': 'highlight-selection-matches',
     'showToken': false,
@@ -42,4 +36,41 @@ const codeMirrorOptions = {
   },
   'hintOptions': {'completeSingle': false},
   'scrollbarStyle': 'simple',
+};
+
+const extraKeysWithoutEscapeTab = {
+  'Cmd-/': 'toggleComment',
+  'Ctrl-/': 'toggleComment',
+  'Shift-Tab': 'indentLess',
+  'Tab': 'indentIfMultiLineSelectionElseInsertSoftTab',
+  'Cmd-F': 'weHandleElsewhere',
+  'Cmd-H': 'weHandleElsewhere',
+  'Ctrl-F': 'weHandleElsewhere',
+  'Ctrl-H': 'weHandleElsewhere',
+  'Cmd-G': 'weHandleElsewhere',
+  'Shift-Ctrl-G': 'weHandleElsewhere',
+  'Ctrl-G': 'weHandleElsewhere',
+  'Shift-Cmd-G': 'weHandleElsewhere',
+  'F4': 'weHandleElsewhere',
+  'Shift-F4': 'weHandleElsewhere',
+  'Shift-Ctrl-F': 'weHandleElsewhere',
+  'Shift-Cmd-F': 'weHandleElsewhere',
+  'Cmd-Alt-F': false,
+  // vscode folding key combos (pc/mac)
+  'Shift-Ctrl-[': 'ourFoldWithCursorToStart',
+  'Cmd-Alt-[': 'ourFoldWithCursorToStart',
+  'Shift-Ctrl-]': 'unfold',
+  'Cmd-Alt-]': 'unfold',
+  'Shift-Ctrl-Alt-[':
+      'foldAll', // made our own keycombo since VSCode and AndroidStudio's
+  'Shift-Cmd-Alt-[': 'foldAll', //  are taken by browser
+  'Shift-Ctrl-Alt-]': 'unfoldAll',
+  'Shift-Cmd-Alt-]': 'unfoldAll',
+};
+
+const extraKeysWithEscapeTab = {
+  'Esc': '...',
+  'Esc Tab': false,
+  'Esc Shift-Tab': false,
+  ...extraKeysWithoutEscapeTab
 };

@@ -35,22 +35,6 @@
     <link href="packages/codemirror/css/codemirror.css" rel="stylesheet"
           media="screen">
     <script src="packages/codemirror/codemirror.js" defer></script>
-
-    <!-- codemirror add-ons -->
-    <link href="packages/codemirror/addon/lint/lint.css" rel="stylesheet"
-          media="screen">
-    <link href="packages/codemirror/addon/hint/show-hint.css" rel="stylesheet"
-          media="screen">
-    <script src="packages/codemirror/addon/scroll/simplescrollbars.js"
-            defer></script>
-    <script src="packages/codemirror/addon/dialog/dialog.js" defer></script>
-    <script src="packages/codemirror/keymap/vim.js" defer></script>
-    <script src="packages/codemirror/addon/scroll/annotatescrollbar.js"
-            defer></script>
-    <script src="packages/codemirror/addon/search/matchesonscrollbar.js"
-            defer></script>
-    <script src="packages/codemirror/addon/search/match-highlighter.js"
-            defer></script>
     <script src="scripts/dart_pad_search.js"
             defer></script>
         
@@ -84,6 +68,10 @@
         <span>DartPad</span>
     </div>
     <div>
+        <button type="button" id="reset-button" class="mdc-button" disabled>
+            <i class="material-icons mdc-button__icon">refresh</i>
+            Reset
+        </button>
         <button type="button" id="format-button" class="mdc-button">
             <i class="material-icons mdc-button__icon">format_align_left</i>
             Format
@@ -122,6 +110,24 @@
             <div id="editor-panel">
                 <div class="button-group">
                     <div id="dartbusy" class="busylight"></div>
+                    <button type="button" id="revert-button"
+                            title="revert to original"
+                            hidden="true"
+                            class="mdc-icon-button material-icons">
+                            restart_alt
+                    </button>
+                    <button type="button" id="show-solution-icon-button"
+                            title="show solution"
+                            hidden="true"
+                            class="mdc-icon-button material-icons">
+                            lightbulb
+                    </button>
+                    <button type="button" id="redo-button"
+                            title="restore last edit"
+                            hidden="true"
+                            class="mdc-icon-button material-icons">
+                            redo
+                    </button>
                     <button type="button" id="run-button"
                             class="mdc-button mdc-button--raised mdc-button--dense">
                         <i class="material-icons mdc-button__icon">play_arrow</i>
@@ -258,7 +264,8 @@
     </div>
     <div class="flex"></div>
     <div id="issues-message" class="info-message"></div>
-    <a id="issues-toggle" hidden></a>
+    <button type="button" id="issues-toggle" class="mdc-button mdc-button-footer" hidden>
+    </button>
     <div id="dartpad-version"></div>
     <i id="dartpad-package-versions" class="material-icons" aria-hidden="true">info</i>
 </footer>

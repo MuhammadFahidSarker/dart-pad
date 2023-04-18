@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:grinder/grinder_sdk.dart';
 import 'package:test/test.dart';
-import 'package:webdriver/io.dart';
+import 'package:webdriver/async_io.dart';
 
 bool get runningInCi => Platform.environment.keys.contains('CI');
 
@@ -84,6 +84,8 @@ void main() async {
     driver = await createDriver(
         uri: Uri.parse('http://localhost:4444/wd/hub/'),
         desired: Capabilities.chrome);
+
+    await Future.delayed(Duration(milliseconds: 2000));
 
     // Go to your page
     await driver.get('http://localhost:8000/');

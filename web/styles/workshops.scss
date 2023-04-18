@@ -175,6 +175,24 @@ section.main-section {
   img {
     width: 100%;
   }
+
+  blockquote {
+    margin: 0 30px 0 30px;
+    padding: 0 16px 0 10px;
+    border-left-width: 5px;
+    border-left-style: solid;
+    background: $workshop-blockquote-bg-color;
+    border-color: $workshop-blockquote-border-color;
+  }
+
+  ol li,
+  ul li {
+    padding: 4px 0;
+  }
+  ol li code,
+  ul li code {
+      line-height: 20px;
+  }
 }
 
 #step-button-container {
@@ -320,6 +338,7 @@ body>footer {
 
 #issues-toggle, .issue-anchor {
   color: $mdc-theme-primary;
+  margin-right: 0;
   &:visited {
     color: $mdc-theme-primary;
   }
@@ -418,3 +437,9 @@ div#search-dialog {
   right: 114px !important;
 }
 
+#revert-button, #redo-button, #show-solution-icon-button {
+  width: 48px;
+  height: 32px;
+  margin-top: -16px;
+  --mdc-ripple-top: 10px !important;
+}

@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../context.dart';
 import '../dart_pad.dart';
+import '../editing/codemirror_options.dart';
 import '../editing/editor.dart';
 import '../elements/analysis_results_controller.dart';
 import '../elements/button.dart';
@@ -55,6 +56,20 @@ abstract class EditorUi {
     keys.bind(['shift-ctrl-/', 'shift-macctrl-/'], () {
       showKeyboardDialog();
     }, 'Keyboard Shortcuts');
+
+    _initEscapeTabSwitching();
+  }
+
+  // When switching to vim-insert mode, disable esc tab and esc shift-tab
+  // as the esc key is required to exit the mode
+  void _initEscapeTabSwitching() {
+    editor.onVimModeChange.listen((e) {
+      if (editor.keyMap == 'vim-insert') {
+        editor.setOption('extraKeys', extraKeysWithoutEscapeTab);
+      } else {
+        editor.setOption('extraKeys', extraKeysWithEscapeTab);
+      }
+    });
   }
 
   Future<void> showKeyboardDialog() async {
@@ -165,7 +180,8 @@ abstract class EditorUi {
         displayIssues([
           AnalysisIssue()
             ..kind = 'error'
-            ..line = 1
+            ..line =
+                -1 // set invalid line number, so NO line # will be displayed
             ..message = message
         ]);
       } else {
@@ -203,7 +219,9 @@ abstract class EditorUi {
           addFirebaseJs: shouldAddFirebaseJs,
           // TODO(srawlins): Determine if we need to destroy the frame when
           // changing channels.
-          destroyFrame: false,
+          // TODO(ryjohn) Determine how to preserve the iframe
+          // https://github.com/dart-lang/dart-pad/issues/2269
+          destroyFrame: true,
         );
       } else {
         final response = await dartServices
@@ -217,7 +235,9 @@ abstract class EditorUi {
           context.htmlSource,
           context.cssSource,
           response.result,
-          destroyFrame: false,
+          // TODO(ryjohn) Determine how to preserve the iframe
+          // https://github.com/dart-lang/dart-pad/issues/2269
+          destroyFrame: true,
         );
       }
       return true;
@@ -234,7 +254,7 @@ abstract class EditorUi {
   }
 
   /// Updates the Flutter and Dart SDK versions in the bottom right.
-  void updateVersions() async {
+  Future<void> updateVersions() async {
     try {
       final response = await dartServices.version();
       // "Based on Flutter 1.19.0-4.1.pre Dart SDK 2.8.4"
@@ -279,6 +299,9 @@ class Channel {
   final String flutterVersion;
   final bool hidden;
 
+  /// SDK experiment flags enabled for this channel.
+  final List<String> experiments;
+
   static Future<Channel> fromVersion(String name, {bool hidden = false}) async {
     var rootUrl = urlMapping[name];
     // If the user provided bad URL query parameter (`?channel=nonsense`),
@@ -292,6 +315,7 @@ class Channel {
       dartVersion: versionResponse.sdkVersionFull,
       flutterVersion: versionResponse.flutterVersion,
       hidden: hidden,
+      experiments: versionResponse.experiment,
     );
   }
 
@@ -299,6 +323,7 @@ class Channel {
     'stable': stableServerUrl,
     'beta': betaServerUrl,
     'old': oldServerUrl,
+    'master': masterServerUrl,
     'dev': devServerUrl,
   };
 
@@ -307,6 +332,7 @@ class Channel {
     required this.dartVersion,
     required this.flutterVersion,
     required this.hidden,
+    required this.experiments,
   });
 }
 
@@ -332,35 +358,44 @@ class KeyboardDialog {
 
   Future<DialogResult> show(Editor editor) {
     // populate with the keymap info
-    final DElement _keyMapInfoDiv =
+    final DElement keyMapInfoDiv =
         DElement(querySelector('#keyboard-map-info')!);
     final Element info = Element.html(keyMapToHtml(keys.inverseBindings));
-    _keyMapInfoDiv.clearChildren();
-    _keyMapInfoDiv.add(info);
+    keyMapInfoDiv.clearChildren();
+    keyMapInfoDiv.add(info);
 
     // set switch according to keyboard state
-    final String? currentKeyMap = editor.keyMap;
+    final String currentKeyMap = editor.keyMap;
     _vimSwitch.checked = (currentKeyMap == 'vim');
 
     final completer = Completer<DialogResult>();
 
-    _okButton.onClick.listen((_) {
-      final bool vimset = _vimSwitch.checked!;
+    final okButtonSub = _okButton.onClick.listen((_) {
+      final bool vimSet = _vimSwitch.checked!;
 
       // change keyMap if needed and *remember* their choice for next startup
-      if (vimset) {
+      if (vimSet) {
         if (currentKeyMap != 'vim') editor.keyMap = 'vim';
         window.localStorage['codemirror_keymap'] = 'vim';
       } else {
         if (currentKeyMap != 'default') editor.keyMap = 'default';
         window.localStorage['codemirror_keymap'] = 'default';
+        editor.setOption('extraKeys', extraKeysWithEscapeTab);
       }
-      completer.complete(vimset ? DialogResult.yes : DialogResult.ok);
+      completer.complete(vimSet ? DialogResult.yes : DialogResult.ok);
     });
+
+    void handleClosing(Event _) {
+      completer.complete(DialogResult.cancel);
+    }
+
+    _mdcDialog.listen('MDCDialog:closing', handleClosing);
 
     _mdcDialog.open();
 
     return completer.future.then((v) {
+      okButtonSub.cancel();
+      _mdcDialog.unlisten('MDCDialog:closing', handleClosing);
       _mdcDialog.close();
       return v;
     });
