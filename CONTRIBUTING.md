@@ -1,4 +1,5 @@
 # Contributing to DartPad
+
 Want to contribute? Great! First, read this page (including the small print at the end).
 
 ## Before you contribute
@@ -24,7 +25,7 @@ Contributions made by corporations are covered by a different agreement than the
 1) Update the samples first in the dartpad_examples repository: https://github.com/dart-lang/dartpad_examples
 
 2) If you are updating an existing sample, create your own gist based on the existing samples.
-   Gist IDs can be found in the [index file](https://github.com/dart-lang/dart-pad/blob/master/web/index.html#L54).
+   Gist IDs can be found in the [index file](https://github.com/dart-lang/dart-pad/blob/main/web/index.html#L54).
    Fork the gist, if necessary, then update the contents with the new version from dartpad_examples.
  
    Otherwise, use the same gist layout as the samples to make sure that DartPad recognizes it:
@@ -35,45 +36,15 @@ Contributions made by corporations are covered by a different agreement than the
    You can test your gist after updating or creating it by appending the gist ID to the URL for
    dartpad.
  
-3) Add or change sample Gist IDs to the [index file](https://github.com/dart-lang/dart-pad/blob/master/web/index.html#L54),
+3) Add or change sample Gist IDs to the [index file](https://github.com/dart-lang/dart-pad/blob/main/web/index.html#L54),
    and submit a PR for review.
 
 ## How to run DartPad locally
 
-* To run the DartPad against the regular serving backend:
+To run the server, see https://github.com/dart-lang/dart-pad/blob/main/pkgs/dart_services/README.md.
 
-Install the [`protoc` compiler](https://grpc.io/docs/protoc-installation/).
+To run the front-end, from the `pkg/dart-pad` directory, run:
 
-Run these commands:
-
-```bash
-# Get all Dart dependencies
-dart pub get
-# Install the Dart protobuf compiler & grinder tool
-dart pub global activate protoc_plugin
-dart pub global activate grinder
-# Serve
-grind serve
 ```
-This serves the DartPad frontend locally on port 8000.
-
-* To run DartPad against a local version of the dart-services backend:
-```bash
-cd ..
-git clone git@github.com:dart-lang/dart-services.git
-cd dart-services
-dart pub get
-# Change the SDK version dart-services serves to the one you currently have installed
-grind update-docker-version
-# Begin serving the backend locally on port 8082.
-grind serve &
-
-cd ../dart-pad
-# Begin serving the front-end locally on port 8000, with the given backend
-export DARTPAD_BACKEND=http://localhost:8082
-grind serve-custom-backend
+dart tool/grind.dart serve
 ```
-
-You can adjust the DARTPAD_BACKEND variable to match different versions of the dart-pad backend
-serving on AppEngine for test purposes as well, e.g.:
-`DARTPAD_BACKEND=https://20180822t110058-dot-dart-services.appspot.com/`

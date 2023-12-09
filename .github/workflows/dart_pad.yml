@@ -1,0 +1,52 @@
+name: package:dart_pad
+
+permissions: read-all
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/dart_pad.yml'
+      - 'pkgs/dart_pad/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/dart_pad.yml'
+      - 'pkgs/dart_pad/**'
+  schedule:
+    - cron: '0 0 * * 0' # weekly
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pkgs/dart_pad/
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sdk: beta
+          - sdk: stable
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+
+      - name: Install dart dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: dart analyze --fatal-infos
+
+      - name: Run buildbot
+        run: |
+          export PATH=$PATH:$HOME/.pub-cache/bin
+          dart run tool/grind.dart buildbot
